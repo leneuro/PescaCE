@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Diário de Pesca</title>
+  <meta name="description" content="Registre suas pescas no litoral do Ceará e do Rio Grande do Norte com maré, lua e localização.">
+  <meta name="theme-color" content="#0d3b4f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icone.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icone-192.png">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="topo-linha">
+      <div class="marca">
+        <img src="icone.svg" alt="" width="34" height="34">
+        <div>
+          <h1>Diário de Pesca</h1>
+          <p id="hoje" class="hoje">—</p>
+        </div>
+      </div>
+      <button id="chip-gps" class="chip-gps" type="button" aria-live="polite">
+        <span class="ponto"></span><span id="gps-texto">Localizando…</span>
+      </button>
+    </div>
+    <div id="aviso-offline" class="aviso-offline" hidden>Sem internet. A pesca fica salva e a maré é buscada quando a conexão voltar.</div>
+  </header>
+
+  <main>
+    <!-- ========== REGISTRAR ========== -->
+    <section id="tela-registrar" class="tela ativa" aria-labelledby="t-reg">
+      <h2 id="t-reg" class="sr">Registrar pesca</h2>
+
+      <div class="bloco">
+        <div class="bloco-cab">
+          <h3><span class="num">1</span> Que horas pescou?</h3>
+          <button id="btn-agora" class="link" type="button">Agora</button>
+        </div>
+        <div id="grade-horas" class="grade-horas" role="group" aria-label="Hora"></div>
+        <div class="minutos" role="group" aria-label="Minutos">
+          <span class="rotulo-min">min</span>
+          <div id="grade-min" class="grade-min"></div>
+        </div>
+      </div>
+
+      <div class="bloco">
+        <div class="bloco-cab">
+          <h3><span class="num">2</span> Qual peixe?</h3>
+        </div>
+        <div class="busca">
+          <input id="busca" type="search" placeholder="Procurar peixe (nome ou apelido)" autocomplete="off" enterkeyhint="search">
+        </div>
+        <div id="filtros" class="filtros" role="tablist" aria-label="Tipo de pesca"></div>
+        <div id="grade-peixes" class="grade-peixes"></div>
+        <div id="campo-outro" class="campo-outro" hidden>
+          <label for="nome-outro">Nome do peixe</label>
+          <input id="nome-outro" type="text" placeholder="Ex.: Arraia, Cação, Biquara-branca…" maxlength="40">
+        </div>
+      </div>
+
+      <div class="bloco">
+        <div class="bloco-cab">
+          <h3><span class="num">3</span> Quantos?</h3>
+        </div>
+        <div class="linha-qtd">
+          <div class="stepper">
+            <button type="button" id="qtd-menos" aria-label="Menos">−</button>
+            <output id="qtd" aria-live="polite">1</output>
+            <button type="button" id="qtd-mais" aria-label="Mais">+</button>
+          </div>
+          <label class="peso">
+            <span>Peso total (opcional)</span>
+            <span class="peso-input"><input id="peso" type="text" inputmode="decimal" autocomplete="off" placeholder="0,0" maxlength="6"> kg</span>
+          </label>
+        </div>
+      </div>
+
+      <p class="dica">📍 Registre no local da pesca: a localização vem do GPS do celular na hora de salvar.</p>
+      <div class="espaco-rodape"></div>
+    </section>
+
+    <!-- ========== HISTÓRICO ========== -->
+    <section id="tela-historico" class="tela" aria-labelledby="t-hist">
+      <div class="hist-cab">
+        <h2 id="t-hist">Minhas pescas</h2>
+        <div class="hist-acoes">
+          <button id="btn-csv" class="btn-sec" type="button">Baixar planilha</button>
+          <button id="btn-compartilhar" class="btn-sec" type="button">Compartilhar</button>
+        </div>
+      </div>
+      <div id="resumo" class="resumo"></div>
+      <div id="lista" class="lista"></div>
+      <details class="creditos">
+        <summary>Créditos das fotos e dos dados</summary>
+        <p>Fotos dos peixes: Wikimedia Commons, com licenças livres (Creative Commons ou domínio público). Autor e licença de cada foto:</p>
+        <ul id="lista-creditos"></ul>
+        <p>Maré: modelo oceânico via <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0). É uma estimativa do modelo, não a tábua oficial da Marinha. Nome do local: © colaboradores do <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>.</p>
+      </details>
+      <div class="espaco-rodape"></div>
+    </section>
+  </main>
+
+  <!-- Botão salvar (fixo) -->
+  <div id="barra-salvar" class="barra-salvar">
+    <div id="resumo-sel" class="resumo-sel">Escolha a hora e o peixe</div>
+    <button id="btn-salvar" class="btn-salvar" type="button" disabled>Salvar pesca</button>
+  </div>
+
+  <nav class="abas" aria-label="Navegação">
+    <button class="aba ativa" data-tela="tela-registrar" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+      Registrar
+    </button>
+    <button class="aba" data-tela="tela-historico" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+      Minhas pescas <span id="contador" class="contador" hidden>0</span>
+    </button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="especies.js"></script>
+  <script src="mare.js"></script>
+  <script src="fotos.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
